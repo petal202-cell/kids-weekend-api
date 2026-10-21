@@ -1,0 +1,44 @@
+# kids-weekend-api
+
+초등 1~3학년 주말 체험 후보를 모으는 Python 수집기입니다. 기존 insta_2026 운영과 독립적이며 게시·예약·텔레그램 전송은 하지 않습니다.
+
+## 실행
+Python 3.11 이상, 외부 패키지 불필요.
+
+```sh
+python -m unittest -v
+python collector.py --sample --probe-images
+# 전체 조회: 서울 열린데이터광장 인증키를 환경변수 SEOUL_API_KEY로 등록 후
+python collector.py --probe-images
+```
+
+결과: output/reservations.json. 샘플은 서비스별 첫 5건으로 전체 추천 결과가 아닙니다.
+
+## GitHub Actions
+push 시 테스트와 공개 샘플 수집이 실행됩니다. Actions → Seoul reservation collection → 실행 → seoul-reservations 아티팩트에서 JSON을 받습니다.
+전체 조회는 Settings → Secrets and variables → Actions → New repository secret에 SEOUL_API_KEY를 등록한 뒤 Run workflow에서 sample을 해제합니다. 키를 코드·이슈·채팅에 올리지 마세요.
+정기 실행은 아직 설정하지 않았습니다.
+
+## 데이터와 판단
+- 교육: ListPublicReservationEducation / 문화행사: ListPublicReservationCulture
+- SVCID 중복 제거, 한국 시간 조회시각, 접수·운영기간, 대상 원문, 분류, 예약 링크 저장.
+- 명시된 학년 범위만 explicit_match. 가족·어린이·나이만 있는 경우 needs_review.
+- 접수 중은 잔여석 보장이 아닙니다. remaining_seats=null.
+- 운영기간이 주말과 겹쳐도 실제 토·일 회차가 있다는 뜻은 아닙니다. weekend_session_verified=false.
+- candidate는 검토 후보이지 게시 가능한 최종 추천이 아닙니다.
+- 무료/유료 표시만 수집하며 구체적인 금액은 상세 안내 확인이 필요합니다.
+- 통신 실패와 인증 오류는 성공한 빈 결과로 처리하지 않습니다.
+
+## 공식 이미지 확인
+2026-10-21 공개 샘플 실응답에서 IMGURL을 확인했습니다. 대표 이미지 URL을 official_image_url에 저장합니다.
+--probe-images는 최대 10건의 서울시 예약 이미지에 HEAD 요청으로 접근 여부와 MIME 유형을 확인합니다. 이미지 파일은 내려받지 않습니다.
+사진인지 포스터인지 API는 보장하지 않으므로 official_image_unclassified로 표시합니다. 사진으로 단정하거나 자동 게시하지 않습니다.
+공식 데이터셋은 공공누리 제1유형(출처표시)으로 안내되지만, 개별 이미지의 별도 권리표시·사진 속 인물·포스터 포함 저작물을 게시 전에 확인해야 합니다. image_rights_status=review_required를 유지합니다.
+출처: 서울특별시 공공서비스예약 / 서울 열린데이터광장. 원문 예약 링크도 함께 표시하세요.
+
+## 공식 문서
+- https://data.seoul.go.kr/dataList/OA-2268/A/1/datasetView.do
+- https://data.seoul.go.kr/dataList/OA-2269/O/1/datasetView.do
+- https://data.seoul.go.kr/dataList/4/literacyView.do
+
+서울시 문서의 공식 조회 주소는 http://openapi.seoul.go.kr:8088 입니다. 이 환경에서 해당 포트의 HTTPS 연결은 실패했습니다. 현재 문서의 HTTP 주소를 사용하며 인증키가 포함된 요청 URL은 로그·결과에 기록하지 않습니다. HTTPS 주소가 공식 지원되면 전환해야 합니다.
