@@ -42,3 +42,6 @@ push 시 테스트와 공개 샘플 수집이 실행됩니다. Actions → Seoul
 - https://data.seoul.go.kr/dataList/4/literacyView.do
 
 서울시 문서의 공식 조회 주소는 http://openapi.seoul.go.kr:8088 입니다. 이 환경에서 해당 포트의 HTTPS 연결은 실패했습니다. 현재 문서의 HTTP 주소를 사용하며 인증키가 포함된 요청 URL은 로그·결과에 기록하지 않습니다. HTTPS 주소가 공식 지원되면 전환해야 합니다.
+
+## 후보 선정 기준 (2026-10-21 변경)
+앞으로 7일 안에 접수를 시작하는 프로그램을 후보로 선정하고 registration_start 오름차순으로 candidates에 저장합니다. --opening-days로 기간 변경 가능. 접수 시작일이 없거나 이미 접수 중/마감인 항목은 기본 후보에서 제외합니다. 행사일은 다음 주 이후여도 포함합니다. 전체 records는 검토용으로 유지합니다. 초1~3 대상이 불명확한 needs_review 후보는 원문 검토가 필요하며, 주말 회차·잔여석은 자동 확정하지 않습니다.
