@@ -32,7 +32,7 @@ jobs:
           d = json.loads(Path('output/reservations.json').read_text())
           if d['sample_is_not_complete']:
               raise RuntimeError('Sample cannot replace full feed')
-          fields = ('id','title','audience','grade_status','place','district','fee_label','registration_start','registration_end','event_start','event_end','booking_url','checked_at','candidate')
+          fields = ('id','title','audience','grade_status','place','district','fee_label','registration_start','registration_end','event_start','event_end','booking_url','checked_at','candidate','description')
           candidates = [{k: r.get(k) for k in fields} for r in d['candidates']]
           out = {k: d[k] for k in ('checked_at','sample_is_not_complete','selection')}
           out['candidates'] = candidates
