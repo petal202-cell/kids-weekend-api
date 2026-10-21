@@ -70,7 +70,7 @@ def safe_url(value):
     p = urllib.parse.urlsplit(value)
     return value if p.scheme in ("http", "https") and p.hostname and not p.username else None
 
-def normalize(row, service, now):
+def normalize(row, service, now, opening_days=7):
     start, end = parse_time(row.get("SVCOPNBGNDT")), parse_time(row.get("SVCOPNENDDT"))
     begin, close = parse_time(row.get("RCPTBGNDT")), parse_time(row.get("RCPTENDDT"))
     sat = now.date() + dt.timedelta(days=(5 - now.weekday()) % 7)
@@ -85,6 +85,10 @@ def normalize(row, service, now):
     else:
         registration = "unknown"
     overlap = None if not start or not end else start.date() <= sun and end.date() >= sat
+    opens_soon = bool(begin and now < begin <= now + dt.timedelta(days=opening_days))
+    candidate = (grade_match(row.get("USETGTINFO")) != "excluded"
+                 and registration == "upcoming" and opens_soon
+                 and (end is None or end >= begin))
     image = safe_url(row.get("IMGURL"))
     return {
         "id": str(row.get("SVCID", "")), "service": service,
@@ -107,7 +111,8 @@ def normalize(row, service, now):
         "image_rights_status": "review_required" if image else None,
         "attribution": "서울특별시 공공서비스예약 / 서울 열린데이터광장",
         "source_url": SOURCE, "checked_at": now.isoformat(),
-        "candidate": grade_match(row.get("USETGTINFO")) != "excluded" and overlap is not False and registration != "closed",
+        "candidate": candidate,
+        "candidate_reason": "registration_opens_soon" if candidate else None,
     }
 
 class SeoulClient:
@@ -165,7 +170,10 @@ def main():
     parser.add_argument("--sample", action="store_true", help="Public sample key; only first five rows per service")
     parser.add_argument("--probe-images", action="store_true", help="HEAD-check at most ten official image URLs")
     parser.add_argument("--output", default="output/reservations.json")
+    parser.add_argument("--opening-days", type=int, default=7, help="Upcoming registration window in days")
     args = parser.parse_args()
+    if args.opening_days < 1:
+        parser.error("--opening-days must be positive")
     key = "sample" if args.sample else os.environ.get("SEOUL_API_KEY")
     if not key:
         parser.error("Set SEOUL_API_KEY or use --sample")
@@ -174,7 +182,7 @@ def main():
     client = SeoulClient(key)
     for service in SERVICES:
         for row in client.collect(service):
-            record = normalize(row, service, now)
+            record = normalize(row, service, now, args.opening_days)
             if not record["id"]:
                 raise ApiError("Missing reservation ID")
             records.setdefault(record["id"], record)
@@ -183,7 +191,10 @@ def main():
         if args.probe_images and record["official_image_url"] and probes < 10:
             record["image_probe"] = probe_image(record["official_image_url"])
             probes += 1
-    result = {"mode": "sample" if key == "sample" else "full", "checked_at": now.isoformat(),
+    candidates = sorted((r for r in records.values() if r["candidate"]),
+                        key=lambda r: (r["registration_start"], r["id"]))
+    result = {"selection": {"rule": "registration_opens_soon", "opening_days": args.opening_days},
+              "candidates": candidates, "mode": "sample" if key == "sample" else "full", "checked_at": now.isoformat(),
               "sample_is_not_complete": key == "sample",
               "notice": "접수 중은 잔여석 보장이 아닙니다. 운영기간 중 실제 주말 회차와 대상 학년은 원문 확인 필요.",
               "records": list(records.values())}
