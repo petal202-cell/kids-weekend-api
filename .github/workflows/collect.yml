@@ -1,0 +1,36 @@
+name: Seoul reservation collection
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: '샘플 모드: 서비스별 첫 5건만 수집'
+        type: boolean
+        default: true
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test collector
+        run: python -m unittest -v
+      - name: Collect public sample on push
+        if: github.event_name == 'push' || inputs.sample
+        run: python collector.py --sample --probe-images
+      - name: Collect full feed manually
+        if: github.event_name == 'workflow_dispatch' && !inputs.sample
+        env:
+          SEOUL_API_KEY: ${{ secrets.SEOUL_API_KEY }}
+        run: python collector.py --probe-images
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seoul-reservations
+          path: output/reservations.json
+          if-no-files-found: error
+          retention-days: 7
