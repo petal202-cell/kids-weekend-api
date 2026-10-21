@@ -1,0 +1,35 @@
+name: Verify Seoul API key
+on:
+  push:
+    paths: ['.github/workflows/verify-key.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest -v
+      - name: Check key registration
+        env:
+          SEOUL_API_KEY: ${{ secrets.SEOUL_API_KEY }}
+        run: |
+          if [ -z "$SEOUL_API_KEY" ]; then
+            echo "SEOUL_API_KEY is missing from repository Actions secrets"
+            exit 1
+          fi
+      - name: Collect complete education and culture feeds
+        env:
+          SEOUL_API_KEY: ${{ secrets.SEOUL_API_KEY }}
+        run: python collector.py --probe-images
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seoul-full-verification
+          path: output/reservations.json
+          if-no-files-found: error
+          retention-days: 7
