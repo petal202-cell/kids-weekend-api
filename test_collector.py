@@ -26,9 +26,27 @@ class CollectorTests(unittest.TestCase):
         self.assertIsNone(record["remaining_seats"])
         self.assertIsNone(record["official_image_url"])
         row["SVCSTATNM"] = "접수중"
-        self.assertTrue(normalize(row, "", now)["candidate"])
+        self.assertFalse(normalize(row, "", now)["candidate"])
         row["RCPTENDDT"] = "2026-10-20 00:00:00"
         self.assertEqual(normalize(row, "", now)["registration_status"], "closed")
+
+    def test_upcoming_registration_window_not_event_week(self):
+        now = dt.datetime(2026, 10, 21, 12, tzinfo=KST)
+        row = {"USETGTINFO": "초등 1~3학년", "SVCSTATNM": "접수예정",
+               "RCPTBGNDT": "2026-10-22 10:00:00",
+               "RCPTENDDT": "2026-10-30 10:00:00",
+               "SVCOPNBGNDT": "2026-11-07 10:00:00",
+               "SVCOPNENDDT": "2026-11-07 12:00:00"}
+        self.assertTrue(normalize(row, "", now)["candidate"])
+        self.assertFalse(normalize(row, "", now)["period_overlaps_weekend"])
+        row["RCPTBGNDT"] = "2026-10-29 10:00:00"
+        self.assertFalse(normalize(row, "", now)["candidate"])
+        row["RCPTBGNDT"] = "2026-10-28 12:00:00"
+        self.assertTrue(normalize(row, "", now)["candidate"])
+        row["RCPTBGNDT"] = now.isoformat()
+        self.assertFalse(normalize(row, "", now)["candidate"])
+        row["RCPTBGNDT"] = ""
+        self.assertFalse(normalize(row, "", now)["candidate"])
 
     def test_sample_does_not_paginate(self):
         client = SeoulClient()
