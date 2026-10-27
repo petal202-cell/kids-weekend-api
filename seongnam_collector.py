@@ -159,7 +159,18 @@ def parse_detail(raw, summary, now):
     reason = ("event_ended" if ended else "audience_excluded" if adult_only else
               "image_only_or_sparse_details" if len(description)<40 else
               "family_event_review" if relevant else "not_child_experience")
-    candidate = relevant and not ended and len(description)>=40 and bool(event_start)
+    reg_closed = bool(reg_end and dt.datetime.fromisoformat(reg_end if "T" in reg_end else reg_end+"T23:59:59+09:00") < now)
+    weekend_closed = bool(re.search(r"주말\s*[·ㆍ,/및\s]*공휴일\s*(?:휴관|휴무)|주말\s*(?:휴관|휴무)", description))
+    if reg_closed:
+        reason = "registration_closed"
+    elif weekend_closed:
+        reason = "weekend_closed"
+    candidate = relevant and not ended and not reg_closed and not weekend_closed and len(description)>=40 and bool(event_start)
+    registration_priority = "review_required"
+    if reg_start and not reg_closed:
+        opens = dt.datetime.fromisoformat(reg_start if "T" in reg_start else reg_start+"T00:00:00+09:00")
+        registration_priority = "opening_within_7_days" if now < opens <= now+dt.timedelta(days=7) else "open_period" if opens <= now else "opens_later"
+
     return {
         "id":"seongnam-"+summary["source_id"], "source":"seongnam_city_hall_html",
         "source_id":summary["source_id"], "title":title, "category":category,
@@ -167,6 +178,7 @@ def parse_detail(raw, summary, now):
         "description":description, "source_fields":info,
         "event_start":event_start, "event_end":event_end,
         "registration_start":reg_start, "registration_end":reg_end,
+        "registration_priority":registration_priority,
         "event_period_raw":info.get("행사기간"),"registration_period_raw":info.get("접수기간"),
         "source_url":BOARD+"/"+summary["source_id"],
         "booking_url":None, "reference_links":list(dict.fromkeys(links)),
@@ -215,7 +227,7 @@ def collect(now=None, months=2, max_pages=10, delay=0.3):
     return {"source":"seongnam_city_hall_html","checked_at":now.isoformat(),
             "scan_complete":not truncated and not errors,"scanned_pages":scans,"errors":errors,
             "notice":"공식 API가 아닌 공개 게시판 수집. 후보는 검토용이며 예약가능·게시가능을 의미하지 않습니다.",
-            "candidates":[r for r in records if r["candidate"]],"records":records}
+            "candidates":sorted([r for r in records if r["candidate"]], key=lambda r: ({"opening_within_7_days":0,"open_period":1,"review_required":2,"opens_later":3}[r["registration_priority"]], r["registration_start"] or r["event_start"] or "")),"records":records}
 
 def main():
     parser=argparse.ArgumentParser()
