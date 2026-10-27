@@ -159,13 +159,16 @@ def parse_detail(raw, summary, now):
     reason = ("event_ended" if ended else "audience_excluded" if adult_only else
               "image_only_or_sparse_details" if len(description)<40 else
               "family_event_review" if relevant else "not_child_experience")
+    reg_invalid = bool(info.get("접수기간") and (not reg_start or not reg_end))
     reg_closed = bool(reg_end and dt.datetime.fromisoformat(reg_end if "T" in reg_end else reg_end+"T23:59:59+09:00") < now)
     weekend_closed = bool(re.search(r"주말\s*[·ㆍ,/및\s]*공휴일\s*(?:휴관|휴무)|주말\s*(?:휴관|휴무)", description))
-    if reg_closed:
+    if reg_invalid:
+        reason = "registration_dates_need_review"
+    elif reg_closed:
         reason = "registration_closed"
     elif weekend_closed:
         reason = "weekend_closed"
-    candidate = relevant and not ended and not reg_closed and not weekend_closed and len(description)>=40 and bool(event_start)
+    candidate = relevant and not ended and not reg_invalid and not reg_closed and not weekend_closed and len(description)>=40 and bool(event_start)
     registration_priority = "review_required"
     if reg_start and not reg_closed:
         opens = dt.datetime.fromisoformat(reg_start if "T" in reg_start else reg_start+"T00:00:00+09:00")
