@@ -64,7 +64,7 @@ def field(node, cls):
     found = first(node.walk(), lambda n: n.has(cls))
     return found.text() if found else ""
 
-def fetch(url):
+def fetch_once(url):
     p = urllib.parse.urlsplit(url)
     if p.scheme != "https" or p.hostname != "www.seongnam.go.kr":
         raise SourceError("Only the official City Hall host may be collected")
@@ -85,6 +85,19 @@ def fetch(url):
     if len(raw) < 500 or "행사/강좌/공모" not in raw:
         raise SourceError("City Hall response is not the expected event page")
     return raw
+
+
+def fetch(url):
+    last_error = None
+    for attempt in range(3):
+        try:
+            return fetch_once(url)
+        except SourceError as err:
+            last_error = err
+            if attempt < 2:
+                time.sleep(1+attempt*2)
+    raise last_error
+
 
 def parse_list(raw):
     root = Document(raw).root
