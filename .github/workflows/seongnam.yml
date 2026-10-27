@@ -28,10 +28,14 @@ jobs:
         run: python seongnam_collector.py --months 2 --output output/seongnam.json
       - name: Publish Seongnam-only candidate feed
         run: |
+          git pull --ff-only origin main
           python - <<'PY'
           import json
           from pathlib import Path
+          from seongnam_collector import SELECTION_POLICY
           d = json.loads(Path("output/seongnam.json").read_text())
+          if d['selection']['policy'] != SELECTION_POLICY:
+              raise RuntimeError('Collector policy changed during collection; do not publish stale policy')
           feed = {k:d[k] for k in ("source","checked_at","selection","sample_is_not_complete","partial_scan","scan_complete","errors","candidates")}
           Path("data").mkdir(exist_ok=True)
           Path("data/seongnam-candidates.json").write_text(json.dumps(feed,ensure_ascii=False,indent=2))
