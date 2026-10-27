@@ -203,11 +203,17 @@ def collect(now=None, months=2, max_pages=10, delay=0.3):
     if not summaries:
         raise SourceError("No events collected; preserve previous snapshot for review")
     records=[]
+    errors=[]
     for summary in summaries.values():
         time.sleep(delay)
-        records.append(parse_detail(fetch(BOARD+"/"+summary["source_id"]),summary,now))
+        try:
+            records.append(parse_detail(fetch(BOARD+"/"+summary["source_id"]),summary,now))
+        except SourceError as err:
+            errors.append({"source_id":summary["source_id"],"title":summary["title"],"error":str(err)})
+    if not records:
+        raise SourceError("No detail records collected; preserve previous snapshot")
     return {"source":"seongnam_city_hall_html","checked_at":now.isoformat(),
-            "scan_complete":not truncated,"scanned_pages":scans,
+            "scan_complete":not truncated and not errors,"scanned_pages":scans,"errors":errors,
             "notice":"공식 API가 아닌 공개 게시판 수집. 후보는 검토용이며 예약가능·게시가능을 의미하지 않습니다.",
             "candidates":[r for r in records if r["candidate"]],"records":records}
 
