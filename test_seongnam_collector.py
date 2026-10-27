@@ -1,6 +1,6 @@
 import datetime as dt
 import unittest
-from seongnam_collector import date_range, months_from, parse_detail, parse_list, KST, SourceError, selection_rule, next_month_day
+from seongnam_collector import date_range, months_from, parse_detail, parse_list, KST, SourceError, selection_rule, next_month_day, event_window
 
 NOW = dt.datetime(2026, 10, 27, 12, tzinfo=KST)
 
@@ -56,7 +56,7 @@ class CollectorTests(unittest.TestCase):
 
     def test_no_registration_calendar_month_window(self):
         no_reg=detail().replace("<dl><dt>접수기간</dt><dd>2026.10.28 09:00 ~ 2026.10.30 18:00</dd></dl>","")
-        for period, expected in (("2026.11.27",True),("2026.11.28",False),("2026.10.01 ~ 12.01",True),("2026.10.26",False)):
+        for period, expected in (("2026.10.30",False),("2026.10.31",True),("2026.11.30",True),("2026.12.01",False),("2026.10.01 ~ 12.01",True),("2026.10.26",False)):
             raw=no_reg.replace("2026.11.01(일) ~ 11.08(일)",period)
             self.assertEqual(parse_detail(raw,{"source_id":"1"},NOW)["candidate"],expected)
         r=parse_detail(no_reg,{"source_id":"1"},NOW)
@@ -69,6 +69,9 @@ class CollectorTests(unittest.TestCase):
         self.assertFalse(r["candidate"])
         self.assertEqual(r["registration_mode"],"unknown")
         self.assertTrue(parse_detail(raw.replace("전화예약으로 신청하는","사전예약 없이 참여하는"),{"source_id":"1"},NOW)["candidate"])
+
+    def test_window_begins_this_weekend(self):
+        self.assertEqual(event_window(NOW),(dt.date(2026,10,31),dt.date(2026,11,30)))
 
     def test_month_end_and_year_end(self):
         self.assertEqual(next_month_day(dt.date(2026,1,31)),dt.date(2026,2,28))

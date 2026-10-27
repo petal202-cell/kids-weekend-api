@@ -126,17 +126,22 @@ def date_range(value):
     return tuple(result)
 
 
-SELECTION_POLICY = "seongnam-tomorrow-or-month-v1"
+SELECTION_POLICY = "seongnam-tomorrow-or-weekend-month-v1"
 
 def next_month_day(day):
     year, month = (day.year+1, 1) if day.month==12 else (day.year, day.month+1)
     return dt.date(year, month, min(day.day, calendar.monthrange(year,month)[1]))
 
+def event_window(now):
+    today = now.astimezone(KST).date()
+    saturday = today + dt.timedelta(days=5-today.weekday())
+    return saturday, next_month_day(saturday)
+
 def selection_rule(info, description, start, end, reg_start, reg_end, now):
     """Dates in KST. Missing registration metadata is never proof of walk-in access."""
     today = now.astimezone(KST).date()
     tomorrow = today + dt.timedelta(days=1)
-    until = next_month_day(today)
+    window_start, until = event_window(now)
     if info.get("접수기간"):
         if not reg_start or not reg_end:
             return False, "registration_dates_need_review", "unknown"
@@ -149,7 +154,7 @@ def selection_rule(info, description, start, end, reg_start, reg_end, now):
     mentions_registration = bool(re.search(r"(?:예약|접수|신청|예매)", description))
     if mentions_registration and not explicit_none:
         return False, "registration_method_needs_review", "unknown"
-    in_window = bool(start and end and start[:10] <= until.isoformat() and end[:10] >= today.isoformat())
+    in_window = bool(start and end and start[:10] <= until.isoformat() and end[:10] >= max(today,window_start).isoformat())
     return (in_window, "event_within_one_month" if in_window else "outside_one_month",
             "not_required" if explicit_none else "not_listed")
 
@@ -260,7 +265,7 @@ def collect(now=None, months=2, max_pages=10, delay=0.3):
     if not records:
         raise SourceError("No detail records collected; preserve previous snapshot")
     return {"source":"seongnam_city_hall_html","checked_at":now.isoformat(),
-            "selection":{"policy":SELECTION_POLICY,"timezone":"Asia/Seoul","registration_day":(now.astimezone(KST).date()+dt.timedelta(days=1)).isoformat(),"event_window_start":now.astimezone(KST).date().isoformat(),"event_window_end":next_month_day(now.astimezone(KST).date()).isoformat()},
+            "selection":{"policy":SELECTION_POLICY,"timezone":"Asia/Seoul","registration_day":(now.astimezone(KST).date()+dt.timedelta(days=1)).isoformat(),"event_window_start":event_window(now)[0].isoformat(),"event_window_end":event_window(now)[1].isoformat()},
             "sample_is_not_complete":False, "partial_scan":bool(truncated or errors),
             "scan_complete":not truncated and not errors,"scanned_pages":scans,"errors":errors,
             "notice":"공식 API가 아닌 공개 게시판 수집. 후보는 검토용이며 예약가능·게시가능을 의미하지 않습니다.",
