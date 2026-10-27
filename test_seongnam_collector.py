@@ -38,6 +38,14 @@ class CollectorTests(unittest.TestCase):
     def test_adult_ended_and_image_only_excluded(self):
         for raw in (detail(audience="성인"),detail(period="2026.10.01 ~ 10.02"),detail(description="<img src='/poster.png'>")):
             self.assertFalse(parse_detail(raw,{"source_id":"1"},NOW)["candidate"])
+    def test_closed_registration_and_weekend_closure(self):
+        closed = detail().replace("2026.10.28 09:00","2026.10.25 09:00").replace("2026.10.30 18:00","2026.10.26 18:00")
+        self.assertEqual(parse_detail(closed,{"source_id":"1"},NOW)["candidate_reason"],"registration_closed")
+        r=parse_detail(detail(description="주말·공휴일 휴관 "+("어린이 체험을 안내합니다. "*8)),{"source_id":"1"},NOW)
+        self.assertFalse(r["candidate"])
+        self.assertEqual(r["candidate_reason"],"weekend_closed")
+    def test_upcoming_registration_prioritized(self):
+        self.assertEqual(parse_detail(detail(),{"source_id":"1"},NOW)["registration_priority"],"opening_within_7_days")
     def test_schema_change_fails(self):
         with self.assertRaises(SourceError):
             parse_detail("<div>blocked</div>",{"source_id":"1"},NOW)
