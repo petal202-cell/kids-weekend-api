@@ -1,5 +1,6 @@
 """Read-only Seongnam City Hall event-board collector; not an official Open API."""
 import argparse
+import calendar
 import datetime as dt
 from html.parser import HTMLParser
 import json
@@ -124,6 +125,35 @@ def date_range(value):
         return None, None
     return tuple(result)
 
+
+SELECTION_POLICY = "seongnam-tomorrow-or-month-v1"
+
+def next_month_day(day):
+    year, month = (day.year+1, 1) if day.month==12 else (day.year, day.month+1)
+    return dt.date(year, month, min(day.day, calendar.monthrange(year,month)[1]))
+
+def selection_rule(info, description, start, end, reg_start, reg_end, now):
+    """Dates in KST. Missing registration metadata is never proof of walk-in access."""
+    today = now.astimezone(KST).date()
+    tomorrow = today + dt.timedelta(days=1)
+    until = next_month_day(today)
+    if info.get("접수기간"):
+        if not reg_start or not reg_end:
+            return False, "registration_dates_need_review", "unknown"
+        opens = dt.datetime.fromisoformat(reg_start)
+        opens = opens.replace(tzinfo=KST) if opens.tzinfo is None else opens.astimezone(KST)
+        return (opens.date()==tomorrow,
+                "registration_opens_tomorrow" if opens.date()==tomorrow else "not_tomorrow_registration",
+                "required")
+    explicit_none = bool(re.search(r"(?:사전\s*)?(?:예약|접수|신청)\s*(?:없이|없음|불필요|필요\s*없)|자유\s*(?:관람|입장)", description))
+    mentions_registration = bool(re.search(r"(?:예약|접수|신청|예매)", description))
+    if mentions_registration and not explicit_none:
+        return False, "registration_method_needs_review", "unknown"
+    in_window = bool(start and end and start[:10] <= until.isoformat() and end[:10] >= today.isoformat())
+    return (in_window, "event_within_one_month" if in_window else "outside_one_month",
+            "not_required" if explicit_none else "not_listed")
+
+
 def parse_detail(raw, summary, now):
     root = Document(raw).root
     view = first(root.walk(), lambda n: n.has("board-view"))
@@ -165,29 +195,25 @@ def parse_detail(raw, summary, now):
     reason = ("event_ended" if ended else "audience_excluded" if adult_only else
               "image_only_or_sparse_details" if len(description)<40 else
               "family_event_review" if relevant else "not_child_experience")
-    reg_invalid = bool(info.get("접수기간") and (not reg_start or not reg_end))
-    reg_closed = bool(reg_end and dt.datetime.fromisoformat(reg_end if "T" in reg_end else reg_end+"T23:59:59+09:00") < now)
+    selected, policy_reason, registration_mode = selection_rule(info, description, event_start, event_end, reg_start, reg_end, now)
     weekend_closed = bool(re.search(r"주말\s*[·ㆍ,/및\s]*공휴일\s*(?:휴관|휴무)|주말\s*(?:휴관|휴무)", description))
-    if reg_invalid:
-        reason = "registration_dates_need_review"
-    elif reg_closed:
-        reason = "registration_closed"
-    elif weekend_closed:
+    candidate = relevant and not ended and not weekend_closed and len(description)>=40 and bool(event_start) and selected
+    if weekend_closed:
         reason = "weekend_closed"
-    candidate = relevant and not ended and not reg_invalid and not reg_closed and not weekend_closed and len(description)>=40 and bool(event_start)
-    registration_priority = "review_required"
-    if reg_start and not reg_closed:
-        opens = dt.datetime.fromisoformat(reg_start if "T" in reg_start else reg_start+"T00:00:00+09:00")
-        registration_priority = "opening_within_7_days" if now < opens <= now+dt.timedelta(days=7) else "open_period" if opens <= now else "opens_later"
+    elif relevant and not ended and len(description)>=40:
+        reason = policy_reason
+    registration_priority = "opening_tomorrow" if registration_mode=="required" else "no_registration_month"
 
     return {
         "id":"seongnam-"+summary["source_id"], "source":"seongnam_city_hall_html",
         "source_id":summary["source_id"], "title":title, "category":category,
-        "audience":audience, "grade_status":"needs_review", "place":None,
+        "audience":audience, "grade_status":"needs_review", "place":info.get("장소") or "장소는 공식 안내 확인",
+        "district":"성남시", "fee_label":info.get("체험비용") or info.get("관람료") or "비용은 공식 안내 확인",
         "description":description, "source_fields":info,
         "event_start":event_start, "event_end":event_end,
         "registration_start":reg_start, "registration_end":reg_end,
-        "registration_priority":registration_priority,
+        "registration_priority":registration_priority, "registration_mode":registration_mode,
+        "selection_policy":SELECTION_POLICY,
         "event_period_raw":info.get("행사기간"),"registration_period_raw":info.get("접수기간"),
         "source_url":BOARD+"/"+summary["source_id"],
         "booking_url":None, "reference_links":list(dict.fromkeys(links)),
@@ -234,9 +260,11 @@ def collect(now=None, months=2, max_pages=10, delay=0.3):
     if not records:
         raise SourceError("No detail records collected; preserve previous snapshot")
     return {"source":"seongnam_city_hall_html","checked_at":now.isoformat(),
+            "selection":{"policy":SELECTION_POLICY,"timezone":"Asia/Seoul","registration_day":(now.astimezone(KST).date()+dt.timedelta(days=1)).isoformat(),"event_window_start":now.astimezone(KST).date().isoformat(),"event_window_end":next_month_day(now.astimezone(KST).date()).isoformat()},
+            "sample_is_not_complete":False, "partial_scan":bool(truncated or errors),
             "scan_complete":not truncated and not errors,"scanned_pages":scans,"errors":errors,
             "notice":"공식 API가 아닌 공개 게시판 수집. 후보는 검토용이며 예약가능·게시가능을 의미하지 않습니다.",
-            "candidates":sorted([r for r in records if r["candidate"]], key=lambda r: ({"opening_within_7_days":0,"open_period":1,"review_required":2,"opens_later":3}[r["registration_priority"]], r["registration_start"] or r["event_start"] or "")),"records":records}
+            "candidates":sorted([r for r in records if r["candidate"]], key=lambda r: ({"opening_tomorrow":0,"no_registration_month":1}[r["registration_priority"]], r["registration_start"] or r["event_start"] or "")),"records":records}
 
 def main():
     parser=argparse.ArgumentParser()

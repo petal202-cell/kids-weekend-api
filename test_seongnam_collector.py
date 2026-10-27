@@ -1,6 +1,6 @@
 import datetime as dt
 import unittest
-from seongnam_collector import date_range, months_from, parse_detail, parse_list, KST, SourceError
+from seongnam_collector import date_range, months_from, parse_detail, parse_list, KST, SourceError, selection_rule, next_month_day
 
 NOW = dt.datetime(2026, 10, 27, 12, tzinfo=KST)
 
@@ -40,12 +40,44 @@ class CollectorTests(unittest.TestCase):
             self.assertFalse(parse_detail(raw,{"source_id":"1"},NOW)["candidate"])
     def test_closed_registration_and_weekend_closure(self):
         closed = detail().replace("2026.10.28 09:00","2026.10.25 09:00").replace("2026.10.30 18:00","2026.10.26 18:00")
-        self.assertEqual(parse_detail(closed,{"source_id":"1"},NOW)["candidate_reason"],"registration_closed")
+        self.assertEqual(parse_detail(closed,{"source_id":"1"},NOW)["candidate_reason"],"not_tomorrow_registration")
         r=parse_detail(detail(description="주말·공휴일 휴관 "+("어린이 체험을 안내합니다. "*8)),{"source_id":"1"},NOW)
         self.assertFalse(r["candidate"])
         self.assertEqual(r["candidate_reason"],"weekend_closed")
     def test_upcoming_registration_prioritized(self):
-        self.assertEqual(parse_detail(detail(),{"source_id":"1"},NOW)["registration_priority"],"opening_within_7_days")
+        self.assertEqual(parse_detail(detail(),{"source_id":"1"},NOW)["registration_priority"],"opening_tomorrow")
+
+    def test_registration_only_tomorrow_kst(self):
+        for day, expected in (("2026.10.27",False),("2026.10.28",True),("2026.10.29",False)):
+            raw=detail().replace("2026.10.28 09:00",day+" 09:00")
+            self.assertEqual(parse_detail(raw,{"source_id":"1"},NOW)["candidate"],expected)
+        utc=dt.datetime(2026,10,27,16,tzinfo=dt.timezone.utc) # KST October 28
+        self.assertFalse(parse_detail(detail(),{"source_id":"1"},utc)["candidate"])
+
+    def test_no_registration_calendar_month_window(self):
+        no_reg=detail().replace("<dl><dt>접수기간</dt><dd>2026.10.28 09:00 ~ 2026.10.30 18:00</dd></dl>","")
+        for period, expected in (("2026.11.27",True),("2026.11.28",False),("2026.10.01 ~ 12.01",True),("2026.10.26",False)):
+            raw=no_reg.replace("2026.11.01(일) ~ 11.08(일)",period)
+            self.assertEqual(parse_detail(raw,{"source_id":"1"},NOW)["candidate"],expected)
+        r=parse_detail(no_reg,{"source_id":"1"},NOW)
+        self.assertEqual(r["registration_mode"],"not_listed")
+
+    def test_missing_period_with_booking_in_body_is_not_walk_in(self):
+        raw=detail(description="전화예약으로 신청하는 어린이 체험입니다. "+("자연을 관찰하고 작품을 만듭니다. "*4))
+        raw=raw.replace("<dl><dt>접수기간</dt><dd>2026.10.28 09:00 ~ 2026.10.30 18:00</dd></dl>","")
+        r=parse_detail(raw,{"source_id":"1"},NOW)
+        self.assertFalse(r["candidate"])
+        self.assertEqual(r["registration_mode"],"unknown")
+        self.assertTrue(parse_detail(raw.replace("전화예약으로 신청하는","사전예약 없이 참여하는"),{"source_id":"1"},NOW)["candidate"])
+
+    def test_month_end_and_year_end(self):
+        self.assertEqual(next_month_day(dt.date(2026,1,31)),dt.date(2026,2,28))
+        self.assertEqual(next_month_day(dt.date(2026,12,31)),dt.date(2027,1,31))
+
+    def test_invalid_registration_date_is_held(self):
+        raw=detail().replace("2026.10.28 09:00","날짜미정")
+        self.assertFalse(parse_detail(raw,{"source_id":"1"},NOW)["candidate"])
+
     def test_schema_change_fails(self):
         with self.assertRaises(SourceError):
             parse_detail("<div>blocked</div>",{"source_id":"1"},NOW)
