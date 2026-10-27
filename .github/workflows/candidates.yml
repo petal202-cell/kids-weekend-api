@@ -1,7 +1,8 @@
 name: Refresh upcoming reservation candidates
 on:
-  schedule:
-    - cron: '37 21 * * *'
+  # Seoul collection paused while Seongnam is active.
+  # schedule:
+  #   - cron: '37 21 * * *'
   workflow_dispatch:
   push:
     paths: ['.github/workflows/candidates.yml']
@@ -12,6 +13,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   collect:
+    if: ${{ false }} # Temporarily pause Seoul even on manual/push runs.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
