@@ -5,6 +5,7 @@ from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
+import ssl
 import time
 import urllib.parse
 import urllib.request
@@ -68,7 +69,12 @@ def fetch(url):
         raise SourceError("Only the official City Hall host may be collected")
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"kids-weekend-api/1.0 public-event-research"})
-        with urllib.request.urlopen(req, timeout=30) as res:
+        # City Hall requires RSA cipher compatibility on OpenSSL 3.
+        # Keep certificate/hostname verification and TLS 1.2 minimum enabled.
+        context = ssl.create_default_context()
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        context.set_ciphers("DEFAULT")
+        with urllib.request.urlopen(req, timeout=30, context=context) as res:
             final = urllib.parse.urlsplit(res.url)
             if final.hostname != p.hostname:
                 raise SourceError("Unexpected redirect")
