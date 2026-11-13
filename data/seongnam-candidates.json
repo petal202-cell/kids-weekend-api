@@ -1,10 +1,10 @@
 {
   "source": "seongnam_city_hall_html",
-  "checked_at": "2026-11-12T11:32:55.691995+09:00",
+  "checked_at": "2026-11-13T11:09:51.272891+09:00",
   "selection": {
     "policy": "seongnam-tomorrow-or-weekend-month-v1",
     "timezone": "Asia/Seoul",
-    "registration_day": "2026-11-13",
+    "registration_day": "2026-11-14",
     "event_window_start": "2026-11-14",
     "event_window_end": "2026-12-14"
   },
@@ -13,8 +13,8 @@
   "scan_complete": false,
   "errors": [
     {
-      "source_id": "6559",
-      "title": "2027년 여성플러스센터 창업지원실 입주기업 모집 공고",
+      "source_id": "6554",
+      "title": "신영철 원장의 알기쉬운 중독 이야기 (성남시중독관리통합지원센터 주민대상교육)",
       "error": "Event-detail required fields missing"
     },
     {
@@ -23,18 +23,28 @@
       "error": "Event-detail required fields missing"
     },
     {
+      "source_id": "6559",
+      "title": "2027년 여성플러스센터 창업지원실 입주기업 모집 공고",
+      "error": "Event-detail required fields missing"
+    },
+    {
+      "source_id": "6540",
+      "title": "2026년 건강도시 공모전 결과 및 수상작 공개",
+      "error": "Event-detail required fields missing"
+    },
+    {
       "source_id": "6555",
       "title": "결혼준비학교 참여자 모집 안내(성남시 가족센터)",
       "error": "Event-detail required fields missing"
     },
     {
-      "source_id": "6554",
-      "title": "신영철 원장의 알기쉬운 중독 이야기 (성남시중독관리통합지원센터 주민대상교육)",
+      "source_id": "6545",
+      "title": "2026년 경기도 골목상권 공동체 신규 지정 모집 공고 알림",
       "error": "Event-detail required fields missing"
     },
     {
-      "source_id": "6545",
-      "title": "2026년 경기도 골목상권 공동체 신규 지정 모집 공고 알림",
+      "source_id": "5033",
+      "title": "「노쇠 늦추GO! 건강 챙기GO!」프로그램 참가자 모집 안내",
       "error": "Event-detail required fields missing"
     },
     {
@@ -50,11 +60,6 @@
     {
       "source_id": "6005",
       "title": "해외쇼핑몰셀러 전문가 과정 교육생 모집",
-      "error": "Event-detail required fields missing"
-    },
-    {
-      "source_id": "5033",
-      "title": "「노쇠 늦추GO! 건강 챙기GO!」프로그램 참가자 모집 안내",
       "error": "Event-detail required fields missing"
     },
     {
@@ -88,7 +93,7 @@
       "description": "2026 악극제 '작은할머니' - 일 시 : 2026.11.14.(토) 오후 3시 - 장 소 : 성남아트센터 앙상블시어터 - 주최/주관: 성남예총/성남연극협회 - 후 원 : 성남시 - 관람대상 : 8세 이상 누구나 - 줄거리 : 악극 《작은 할머니》는 일제강점기부터 해방과 6·25전쟁을 거쳐 현대에 이르기까지, 시대의 아픔 속에서 살아온 우리 어머니와 할머니들의 한 많은 삶을 그린 작품이다. 남아선호 사상과 가부장적 질서 속에서 고통받으면서도 꿋꿋하게 삶을 지켜낸 여성들의 희생과 사랑, 그리고 희망을 웃음과 눈물로 풀어낸다. - 입장료 : 무료 - 입장티켓 : 공연 당일 오후 2시부터 성남아트센터 앙상블시어터 티켓박스에서 선착순으로 배부됩니다.",
       "source_fields": {
         "분류": "공연",
-        "조회수": "351",
+        "조회수": "384",
         "참여대상": "누구나",
         "행사기간": "2026.11.14(토)",
         "행사시간": "15:00 ~ 17:00",
@@ -111,7 +116,7 @@
       "official_image_url": "https://www.seongnam.go.kr/pm010201/getThumImage?evntSn=6543",
       "image_rights_status": "restricted_noncommercial_no_derivatives",
       "license_raw": "공공누리 제4유형 : 출처표시 + 상업적 이용금지 + 변경금지",
-      "checked_at": "2026-11-12T11:32:55.691995+09:00",
+      "checked_at": "2026-11-13T11:09:51.272891+09:00",
       "candidate": true,
       "candidate_reason": "event_within_one_month",
       "ready_for_draft": false,
@@ -140,7 +145,7 @@
       "description": "□ 꿀잼어린이극장 ‘오리지널 드로잉 쇼 ’ ○ 일 시 : 11 월 20 일(금) 1회차 16:00~17:00 2회차 19:00~20:00 ○ 장 소 :성남시육아종합지원센터 다함께 머뭄터(성남시 중원구 양현로 379, 지하1층) ○ 대 상 : 24 개월 이상 영유아가정",
       "source_fields": {
         "분류": "공연",
-        "조회수": "350",
+        "조회수": "390",
         "참여대상": "어린이",
         "행사기간": "2026.11.20(금)",
         "행사시간": "16:00 ~ 20:00",
@@ -164,7 +169,7 @@
       "official_image_url": "https://www.seongnam.go.kr/pm010201/getThumImage?evntSn=6556",
       "image_rights_status": "review_required",
       "license_raw": "공공누리 제2유형 : 출처표시 + 상업적 이용금지",
-      "checked_at": "2026-11-12T11:32:55.691995+09:00",
+      "checked_at": "2026-11-13T11:09:51.272891+09:00",
       "candidate": true,
       "candidate_reason": "event_within_one_month",
       "ready_for_draft": false,
@@ -193,7 +198,7 @@
       "description": "2026 성남 HIP:FESTA(성남 힙페스타) ○ 일 시 : 2026년 11월 21일(토) 오후 2시 ○ 장 소 : 정자 신기초등학교 앞 탄천 ○ 출 연 : -양하영밴드 -영화배우 신원균 - 창극「화초장」 -연극배우 이주희 - 1인극 「라디오 사연－매주 금요일에 오는 남자」 ○ 관람료 : 무료 ○ 주최/주관 : 성남예총(한국예총 경기도연합회 성남지회) ○ 후 원 : 성남시 ※ 우천 시 행사가 취소될 수 있으며, 출연진이 변경될 수 있음.",
       "source_fields": {
         "분류": "공연",
-        "조회수": "395",
+        "조회수": "417",
         "참여대상": "누구나",
         "행사기간": "2026.11.21(토)",
         "주관": "성남예총",
@@ -215,7 +220,7 @@
       "official_image_url": "https://www.seongnam.go.kr/pm010201/getThumImage?evntSn=6542",
       "image_rights_status": "restricted_noncommercial_no_derivatives",
       "license_raw": "공공누리 제4유형 : 출처표시 + 상업적 이용금지 + 변경금지",
-      "checked_at": "2026-11-12T11:32:55.691995+09:00",
+      "checked_at": "2026-11-13T11:09:51.272891+09:00",
       "candidate": true,
       "candidate_reason": "event_within_one_month",
       "ready_for_draft": false,
