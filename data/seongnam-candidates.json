@@ -1,12 +1,12 @@
 {
   "source": "seongnam_city_hall_html",
-  "checked_at": "2026-11-22T10:38:47.491764+09:00",
+  "checked_at": "2026-11-23T10:59:36.383040+09:00",
   "selection": {
     "policy": "seongnam-tomorrow-or-weekend-month-v1",
     "timezone": "Asia/Seoul",
-    "registration_day": "2026-11-23",
-    "event_window_start": "2026-11-21",
-    "event_window_end": "2026-12-21"
+    "registration_day": "2026-11-24",
+    "event_window_start": "2026-11-28",
+    "event_window_end": "2026-12-28"
   },
   "sample_is_not_complete": false,
   "partial_scan": true,
@@ -83,114 +83,5 @@
       "error": "Event-detail required fields missing"
     }
   ],
-  "candidates": [
-    {
-      "id": "seongnam-6549",
-      "source": "seongnam_city_hall_html",
-      "source_id": "6549",
-      "title": "성남물빛정원 12월 5일 l 첼로 콰르텟 Anima Celli의 겨울선율",
-      "category": "공연",
-      "audience": "초등이상",
-      "grade_status": "needs_review",
-      "place": "장소는 공식 안내 확인",
-      "district": "성남시",
-      "fee_label": "비용은 공식 안내 확인",
-      "description": "오페라 〈 카르멘 〉 에서 영화 〈 라라랜드 〉 까지 , 한 번쯤 들어본 명선율로 한 해를 마무리합니다 . 파리의 가을을 담은 〈 어텀 리브즈 〉 , 영화 〈 여인의 향기 〉 의 탱고 , 피아졸라의 〈 오블리비언 〉 이 차례로 무대를 채우고 끝은 크리스마스 메들리로 따뜻하게 닫습니다 . 클래식이 처음인 분도 , 가족과 연말 나들이를 계획하는 분도 편하게 즐길 수 있는 무대입니다 . 익숙한 노래가 새로운 편곡으로 어떻게 다시 태어나는지 , 12 월 5 일 성남물빛정원에서 즐겨보세요. 성남물빛정원 홈페이지 바로가기",
-      "source_fields": {
-        "분류": "공연",
-        "조회수": "220",
-        "참여대상": "초등이상",
-        "행사기간": "2026.12.05(토)",
-        "행사시간": "18:00 ~ 19:00",
-        "접수기간": "2026.11.23 00:00 ~ 2026.11.27 00:00",
-        "주관": "문화팀",
-        "문의": "031-729-2997",
-        "작성부서": "교육문화체육국 > 문화관광과 > 문화팀"
-      },
-      "event_start": "2026-12-05",
-      "event_end": "2026-12-05",
-      "registration_start": "2026-11-23T00:00:00+09:00",
-      "registration_end": "2026-11-27T00:00:00+09:00",
-      "registration_priority": "opening_tomorrow",
-      "registration_mode": "required",
-      "selection_policy": "seongnam-tomorrow-or-weekend-month-v1",
-      "event_period_raw": "2026.12.05(토)",
-      "registration_period_raw": "2026.11.23 00:00 ~ 2026.11.27 00:00",
-      "source_url": "https://www.seongnam.go.kr/pm010201/6549",
-      "booking_url": null,
-      "reference_links": [
-        "https://www.seongnam.go.kr/Vq3GtMc"
-      ],
-      "official_image_url": "https://www.seongnam.go.kr/pm010201/getThumImage?evntSn=6549",
-      "image_rights_status": "restricted_noncommercial_no_derivatives",
-      "license_raw": "공공누리 제4유형 : 출처표시 + 상업적 이용금지 + 변경금지",
-      "checked_at": "2026-11-22T10:38:47.491764+09:00",
-      "candidate": true,
-      "candidate_reason": "registration_opens_tomorrow",
-      "ready_for_draft": false,
-      "review_required": [
-        "실제 체험 내용",
-        "초1~3 참여 가능 여부",
-        "주말 회차",
-        "접수기간과 본문 일치 여부",
-        "예약 경로",
-        "이미지 이용조건"
-      ],
-      "remaining_seats": null,
-      "weekend_session_verified": false
-    },
-    {
-      "id": "seongnam-6566",
-      "source": "seongnam_city_hall_html",
-      "source_id": "6566",
-      "title": "2026 유망신예음악회 개최",
-      "category": "공연",
-      "audience": "누구나",
-      "grade_status": "needs_review",
-      "place": "장소는 공식 안내 확인",
-      "district": "성남시",
-      "fee_label": "비용은 공식 안내 확인",
-      "description": "2026 유망신예음악회 - 일 시 : 2026.11.22.(일) 오후 5시 - 장 소 : 성남아트리움 대극장 - 주 최 : 성남예총 - 주 관 : 성남음악협회, GAON CLASSIC - 후 원 : 성남시 - 내 용 : 제32회 전국학생음악경연대회(한국음악협회 성남시지부)입상자 음악회 및 시상식 - 관람료 : 무료 - 입장 연령 : 6세이상 - 티켓 배부 : 공연 당일 오후 4시부터 성남아트리움 1층 대극장 티켓박스에서 선착순으로 배부됩니다.",
-      "source_fields": {
-        "분류": "공연",
-        "조회수": "437",
-        "참여대상": "누구나",
-        "행사기간": "2026.11.22(일)",
-        "행사시간": "17:00 ~ 19:00",
-        "주관": "성남예총",
-        "문의": "031-753-1020",
-        "작성부서": "교육문화체육국 > 문화관광과 > 예술팀",
-        "첨부파일": "웹포22.jpg 다운로드 바로보기 웹포3.jpg 다운로드 바로보기"
-      },
-      "event_start": "2026-11-22",
-      "event_end": "2026-11-22",
-      "registration_start": null,
-      "registration_end": null,
-      "registration_priority": "no_registration_month",
-      "registration_mode": "not_listed",
-      "selection_policy": "seongnam-tomorrow-or-weekend-month-v1",
-      "event_period_raw": "2026.11.22(일)",
-      "registration_period_raw": null,
-      "source_url": "https://www.seongnam.go.kr/pm010201/6566",
-      "booking_url": null,
-      "reference_links": [],
-      "official_image_url": "https://www.seongnam.go.kr/pm010201/getThumImage?evntSn=6566",
-      "image_rights_status": "restricted_noncommercial_no_derivatives",
-      "license_raw": "공공누리 제4유형 : 출처표시 + 상업적 이용금지 + 변경금지",
-      "checked_at": "2026-11-22T10:38:47.491764+09:00",
-      "candidate": true,
-      "candidate_reason": "event_within_one_month",
-      "ready_for_draft": false,
-      "review_required": [
-        "실제 체험 내용",
-        "초1~3 참여 가능 여부",
-        "주말 회차",
-        "접수기간과 본문 일치 여부",
-        "예약 경로",
-        "이미지 이용조건"
-      ],
-      "remaining_seats": null,
-      "weekend_session_verified": false
-    }
-  ]
+  "candidates": []
 }
