@@ -1,10 +1,10 @@
 {
   "source": "seongnam_city_hall_html",
-  "checked_at": "2026-11-23T10:59:36.383040+09:00",
+  "checked_at": "2026-11-24T14:35:02.435878+09:00",
   "selection": {
     "policy": "seongnam-tomorrow-or-weekend-month-v1",
     "timezone": "Asia/Seoul",
-    "registration_day": "2026-11-24",
+    "registration_day": "2026-11-25",
     "event_window_start": "2026-11-28",
     "event_window_end": "2026-12-28"
   },
